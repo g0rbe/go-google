@@ -322,7 +322,6 @@ func RunConcurrentLighthouse(ctx context.Context, n int, u []string, cred Creden
 		go func() {
 			defer s.Release(1)
 			results[i].Run(cred, params...)
-			fmt.Printf("%s -> %.2fms\n", results[i].RequestedUrl, results[i].Time())
 		}()
 	}
 
