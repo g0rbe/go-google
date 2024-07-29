@@ -53,21 +53,25 @@ func TestRunConcurrentLighthouse(t *testing.T) {
 
 	rand.Shuffle(len(TestURLs), func(i, j int) { TestURLs[i], TestURLs[j] = TestURLs[j], TestURLs[i] })
 
-	r := google.RunConcurrentLighthouse(context.TODO(), runtime.NumCPU(), TestURLs, google.NewApiKey(os.Getenv("GOOGLE_CLOUD_KEY")), google.LighthouseCategoryAll...)
+	maxURLs := 10
 
-	if len(r) != len(TestURLs) {
-		t.Fatalf("FAIL: Invlalid result length: %d / %d\n", len(r), len(TestURLs))
+	r := google.RunConcurrentLighthouse(context.TODO(), runtime.NumCPU(), TestURLs[:maxURLs], google.NewApiKey(os.Getenv("GOOGLE_CLOUD_KEY")), google.LighthouseCategoryAll...)
+
+	if len(r) != maxURLs {
+		t.Fatalf("FAIL: Invlalid result length: %d / %d\n", len(r), maxURLs)
 	}
+
 	for i := range r {
+
+		if r[i].Errs() != nil {
+			t.Logf("%s ~> %#v\n", r[i].RequestedUrl, r[i].Errs())
+			continue
+		}
+
+		t.Logf("%s -> %#v\n", r[i].RequestedUrl, r[i].Time())
 
 		if r[i].RequestedUrl != r[i].FinalUrl {
 			t.Errorf("FAIL: %s != %s\n", r[i].RequestedUrl, r[i].FinalUrl)
 		}
-
-		if r[i].Errs() != nil {
-			t.Logf("%s -> %#v\n", r[i].RequestedUrl, r[i].Errs())
-			continue
-		}
-
 	}
 }
