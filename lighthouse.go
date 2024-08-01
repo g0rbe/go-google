@@ -424,7 +424,7 @@ func (r *LighthouseResult) Score(category string) float32 {
 	}
 
 	switch category {
-	case "performance", "accessibility", "best_parctices", "seo":
+	case "performance", "accessibility", "best-parctices", "seo":
 		c := r.Category(category)
 		if c == nil {
 			return -1
