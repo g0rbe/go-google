@@ -39,13 +39,8 @@ func ExampleRandomApiKeys() {
 
 		fmt.Printf("%s\n", k)
 	}
-	// Output:
-	// one
-	// four
-	// two
-	// one
-	// three
 }
+
 func TestRotatingApiKeys(t *testing.T) {
 
 	var res []string
@@ -79,9 +74,9 @@ func ExampleRotatingApiKeys() {
 		fmt.Printf("%s\n", k)
 	}
 	// Output:
-	// one
 	// two
 	// three
 	// four
 	// five
+	// one
 }

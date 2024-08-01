@@ -135,18 +135,10 @@ func TestRunConcurrentLighthouse(t *testing.T) {
 	}
 
 	for i := range errs {
-		if errors.Is(errs[i], google.ErrLighthouseUnprocessable) ||
-			errors.Is(errs[i], google.ErrLighthouseRateLimitExceeded) {
-
-			t.Logf("%s\n", errs[i])
-		} else {
+		if !errors.Is(errs[i], google.ErrLighthouseUnprocessable) &&
+			!errors.Is(errs[i], google.ErrLighthouseRateLimitExceeded) {
 
 			t.Errorf("ERROR: %s\n", errs[i])
 		}
 	}
-
-	for i := range res {
-		t.Logf("\"%s\": %.2f\n", res[i].RequestedURL(), res[i].Score("total"))
-	}
-
 }
