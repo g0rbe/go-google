@@ -20,7 +20,8 @@ func TestRunLighthouse(t *testing.T) {
 		t.Fatalf("Invalid RequestedURL: %s\n", res.RequestedURL().String())
 	}
 
-	t.Logf("categories: %v\n", res.Categories())
+	t.Logf("performance='%d' accessibility='%d'  best-practices='%d' seo='%d' average='%d' total='%d'\n",
+		res.Score("performance"), res.Score("accessibility"), res.Score("best-practices"), res.Score("seo"), res.Score("average"), res.Score("total"))
 }
 
 // func ExampleRunLighthouse() {

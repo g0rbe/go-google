@@ -417,33 +417,33 @@ func (r *LighthouseResult) Timing() time.Duration {
 // If "total" is used as category, returns the total score (adds the scores of the available categories).
 //
 // If category not found returns -1.
-func (r *LighthouseResult) Score(category string) float32 {
+func (r *LighthouseResult) Score(category string) int {
 
 	if len(r.categories) == 0 {
 		return 0
 	}
 
 	switch category {
-	case "performance", "accessibility", "best-parctices", "seo":
+	case "performance", "accessibility", "best-practices", "seo":
 		c := r.Category(category)
 		if c == nil {
 			return -1
 		}
-		return c.Score
+		return int(c.Score * 100)
 
 	case "average":
 		var s float32
 		for k := range r.categories {
 			s += r.categories[k].Score
 		}
-		return s / float32(len(r.categories))
+		return int(s*100) / len(r.categories)
 
 	case "total":
 		var s float32
 		for k := range r.categories {
 			s += r.categories[k].Score
 		}
-		return s
+		return int(s * 100)
 
 	default:
 		return -1
