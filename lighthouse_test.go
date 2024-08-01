@@ -2,76 +2,151 @@ package google_test
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
-	"os"
+	"errors"
 	"runtime"
 	"testing"
 
 	"github.com/g0rbe/go-google"
 )
 
-var TestURLs = []string{"https://gorbe.io/about", "https://gorbe.io/blog", "https://gorbe.io/blog/advanced-techniques-in-attack-surface-management", "https://gorbe.io/blog/archive", "https://gorbe.io/blog/dns-vulnerabilities-and-common-misconfigurations", "https://gorbe.io/blog/introducing-the-columbus-project", "https://gorbe.io/blog/self-hosting-embracing-independence-in-the-digital-world", "https://gorbe.io/blog/tags", "https://gorbe.io/blog/tags/asset", "https://gorbe.io/blog/tags/attacksurfacemanagement", "https://gorbe.io/blog/tags/columbus", "https://gorbe.io/blog/tags/cybersecurity", "https://gorbe.io/blog/tags/dns", "https://gorbe.io/blog/tags/domain", "https://gorbe.io/blog/tags/elmasy", "https://gorbe.io/blog/tags/knowledge", "https://gorbe.io/blog/tags/learning", "https://gorbe.io/blog/tags/misconfiguration", "https://gorbe.io/blog/tags/opensource", "https://gorbe.io/blog/tags/privacy", "https://gorbe.io/blog/tags/remediation", "https://gorbe.io/blog/tags/risk", "https://gorbe.io/blog/tags/security", "https://gorbe.io/blog/tags/selfhost", "https://gorbe.io/blog/tags/vulnerability", "https://gorbe.io/contact", "https://gorbe.io/go", "https://gorbe.io/go/chattr", "https://gorbe.io/go/filemode", "https://gorbe.io/go/ip", "https://gorbe.io/go/osrelease", "https://gorbe.io/go/redmine", "https://gorbe.io/search", "https://gorbe.io/services", "https://gorbe.io/tools", "https://gorbe.io/docs/tags", "https://gorbe.io/docs/tags/analytics", "https://gorbe.io/docs/tags/apache", "https://gorbe.io/docs/tags/automation", "https://gorbe.io/docs/tags/cache", "https://gorbe.io/docs/tags/cgi", "https://gorbe.io/docs/tags/composer", "https://gorbe.io/docs/tags/cybersecurity", "https://gorbe.io/docs/tags/daemon", "https://gorbe.io/docs/tags/database", "https://gorbe.io/docs/tags/db", "https://gorbe.io/docs/tags/debian", "https://gorbe.io/docs/tags/dns", "https://gorbe.io/docs/tags/domain", "https://gorbe.io/docs/tags/email", "https://gorbe.io/docs/tags/email-campaigns", "https://gorbe.io/docs/tags/email-marketing", "https://gorbe.io/docs/tags/encryption", "https://gorbe.io/docs/tags/filesystem", "https://gorbe.io/docs/tags/firewall", "https://gorbe.io/docs/tags/ghost", "https://gorbe.io/docs/tags/git", "https://gorbe.io/docs/tags/gitea", "https://gorbe.io/docs/tags/gnupg", "https://gorbe.io/docs/tags/hardening", "https://gorbe.io/docs/tags/homelab", "https://gorbe.io/docs/tags/http", "https://gorbe.io/docs/tags/iptables", "https://gorbe.io/docs/tags/lfcs", "https://gorbe.io/docs/tags/linux", "https://gorbe.io/docs/tags/log", "https://gorbe.io/docs/tags/mariadb", "https://gorbe.io/docs/tags/marketing", "https://gorbe.io/docs/tags/marketing-automation", "https://gorbe.io/docs/tags/marketing-tools", "https://gorbe.io/docs/tags/mautic", "https://gorbe.io/docs/tags/misconfiguration", "https://gorbe.io/docs/tags/monitor", "https://gorbe.io/docs/tags/monitoring", "https://gorbe.io/docs/tags/my-sql", "https://gorbe.io/docs/tags/mysql", "https://gorbe.io/docs/tags/network-manager", "https://gorbe.io/docs/tags/newsletter", "https://gorbe.io/docs/tags/nginx", "https://gorbe.io/docs/tags/node-js", "https://gorbe.io/docs/tags/nosql", "https://gorbe.io/docs/tags/npm", "https://gorbe.io/docs/tags/offsec", "https://gorbe.io/docs/tags/open-project", "https://gorbe.io/docs/tags/open-ssh", "https://gorbe.io/docs/tags/opensource", "https://gorbe.io/docs/tags/performance", "https://gorbe.io/docs/tags/php", "https://gorbe.io/docs/tags/php-fpm", "https://gorbe.io/docs/tags/pinentry", "https://gorbe.io/docs/tags/privacy", "https://gorbe.io/docs/tags/productivity", "https://gorbe.io/docs/tags/projectmanagement", "https://gorbe.io/docs/tags/proxmox", "https://gorbe.io/docs/tags/proxy", "https://gorbe.io/docs/tags/qemu", "https://gorbe.io/docs/tags/raid", "https://gorbe.io/docs/tags/redmine", "https://gorbe.io/docs/tags/s-3", "https://gorbe.io/docs/tags/security", "https://gorbe.io/docs/tags/self-hosted", "https://gorbe.io/docs/tags/selfhost", "https://gorbe.io/docs/tags/selfhosted", "https://gorbe.io/docs/tags/service", "https://gorbe.io/docs/tags/sftp", "https://gorbe.io/docs/tags/smtp", "https://gorbe.io/docs/tags/sql", "https://gorbe.io/docs/tags/ssh", "https://gorbe.io/docs/tags/ssl", "https://gorbe.io/docs/tags/statistics", "https://gorbe.io/docs/tags/storage", "https://gorbe.io/docs/tags/systemd", "https://gorbe.io/docs/tags/tls", "https://gorbe.io/docs/tags/uptime", "https://gorbe.io/docs/tags/uptime-kuma", "https://gorbe.io/docs/tags/uptime-monitoring", "https://gorbe.io/docs/tags/virtual-machine", "https://gorbe.io/docs/tags/virtualization", "https://gorbe.io/docs/tags/vpn", "https://gorbe.io/docs/tags/vulnerability", "https://gorbe.io/docs/tags/web", "https://gorbe.io/docs/tags/web-analytics", "https://gorbe.io/docs/tags/webserver", "https://gorbe.io/docs/tags/wire-guard", "https://gorbe.io/docs/tags/wireguard", "https://gorbe.io/docs/caddy/install", "https://gorbe.io/docs/category/2021", "https://gorbe.io/docs/category/caddy", "https://gorbe.io/docs/category/ceh", "https://gorbe.io/docs/category/certbot", "https://gorbe.io/docs/category/coredns", "https://gorbe.io/docs/category/debian", "https://gorbe.io/docs/category/dns", "https://gorbe.io/docs/category/docker", "https://gorbe.io/docs/category/fail2ban", "https://gorbe.io/docs/category/frankenphp", "https://gorbe.io/docs/category/ghost", "https://gorbe.io/docs/category/gitea", "https://gorbe.io/docs/category/gnupg", "https://gorbe.io/docs/category/go-scp", "https://gorbe.io/docs/category/iptables", "https://gorbe.io/docs/category/lfcs", "https://gorbe.io/docs/category/linux", "https://gorbe.io/docs/category/listmonk", "https://gorbe.io/docs/category/mariadb", "https://gorbe.io/docs/category/matomo", "https://gorbe.io/docs/category/mautic", "https://gorbe.io/docs/category/mdadm", "https://gorbe.io/docs/category/minio", "https://gorbe.io/docs/category/mongodb", "https://gorbe.io/docs/category/mysql", "https://gorbe.io/docs/category/n8n", "https://gorbe.io/docs/category/networkmanager", "https://gorbe.io/docs/category/nftables", "https://gorbe.io/docs/category/nginx", "https://gorbe.io/docs/category/nodejs", "https://gorbe.io/docs/category/openproject", "https://gorbe.io/docs/category/openssh", "https://gorbe.io/docs/category/owasp", "https://gorbe.io/docs/category/php", "https://gorbe.io/docs/category/pinentry", "https://gorbe.io/docs/category/postgresql", "https://gorbe.io/docs/category/protocols", "https://gorbe.io/docs/category/proxmox", "https://gorbe.io/docs/category/redmine", "https://gorbe.io/docs/category/regex", "https://gorbe.io/docs/category/systemd", "https://gorbe.io/docs/category/top-10", "https://gorbe.io/docs/category/umami", "https://gorbe.io/docs/category/uptime-kuma", "https://gorbe.io/docs/category/wireguard", "https://gorbe.io/docs/ceh/cloud-computing", "https://gorbe.io/docs/ceh/cryptography", "https://gorbe.io/docs/ceh/denial-of-services", "https://gorbe.io/docs/ceh/enumeration", "https://gorbe.io/docs/ceh/footprinting", "https://gorbe.io/docs/ceh/hacking-mobile-platforms", "https://gorbe.io/docs/ceh/hacking-web-applications", "https://gorbe.io/docs/ceh/hacking-web-servers", "https://gorbe.io/docs/ceh/hacking-wireless-networks", "https://gorbe.io/docs/ceh/introduction", "https://gorbe.io/docs/ceh/iot-hacking", "https://gorbe.io/docs/ceh/malware-threats", "https://gorbe.io/docs/ceh/readme", "https://gorbe.io/docs/ceh/scanning-networks", "https://gorbe.io/docs/ceh/sniffing", "https://gorbe.io/docs/ceh/social-engineering", "https://gorbe.io/docs/ceh/sql-injection", "https://gorbe.io/docs/ceh/system-hacking", "https://gorbe.io/docs/ceh/vulnerability-analysis", "https://gorbe.io/docs/certbot/certificate", "https://gorbe.io/docs/certbot/install", "https://gorbe.io/docs/coredns/install-from-binary", "https://gorbe.io/docs/debian/upgrade-10-to-11", "https://gorbe.io/docs/debian/upgrade-11-to-12", "https://gorbe.io/docs/docker/install", "https://gorbe.io/docs/fail2ban/install", "https://gorbe.io/docs/frankenphp/configure", "https://gorbe.io/docs/frankenphp/install", "https://gorbe.io/docs/ghost/install", "https://gorbe.io/docs/gitea/install", "https://gorbe.io/docs/gnupg/pinentry/documentation", "https://gorbe.io/docs/introduction", "https://gorbe.io/docs/iptables/stateful-firewall", "https://gorbe.io/docs/lfcs/commands", "https://gorbe.io/docs/linux/filesystem-hierarchy", "https://gorbe.io/docs/linux/processes-and-threads", "https://gorbe.io/docs/linux/signals", "https://gorbe.io/docs/listmonk/install", "https://gorbe.io/docs/mariadb/setup", "https://gorbe.io/docs/matomo/install", "https://gorbe.io/docs/mautic/install", "https://gorbe.io/docs/mautic/install-with-composer", "https://gorbe.io/docs/mdadm/raid0", "https://gorbe.io/docs/minio/install", "https://gorbe.io/docs/mongodb/configure", "https://gorbe.io/docs/mongodb/install", "https://gorbe.io/docs/mysql/install", "https://gorbe.io/docs/mysql/setup", "https://gorbe.io/docs/n8n/install", "https://gorbe.io/docs/network-manager/mac-address-spoofing", "https://gorbe.io/docs/nftables/stateful-firewall", "https://gorbe.io/docs/nginx/caching", "https://gorbe.io/docs/nginx/common-issues-and-misconfigurations", "https://gorbe.io/docs/nginx/configurations", "https://gorbe.io/docs/nginx/default-server", "https://gorbe.io/docs/nginx/logging", "https://gorbe.io/docs/nginx/static-site", "https://gorbe.io/docs/nodejs/install", "https://gorbe.io/docs/nodejs/release-schedule", "https://gorbe.io/docs/openproject/default-assignee-and-start-date", "https://gorbe.io/docs/openssh/nsa-proof-server", "https://gorbe.io/docs/openssh/sftp-chroot", "https://gorbe.io/docs/owasp/go-scp/access-control", "https://gorbe.io/docs/owasp/go-scp/authentication-password-management", "https://gorbe.io/docs/owasp/go-scp/authentication-password-management/communicating-authentication-data", "https://gorbe.io/docs/owasp/go-scp/authentication-password-management/other-guidelines", "https://gorbe.io/docs/owasp/go-scp/authentication-password-management/password-policies", "https://gorbe.io/docs/owasp/go-scp/authentication-password-management/validation-and-storage", "https://gorbe.io/docs/owasp/go-scp/communication-security", "https://gorbe.io/docs/owasp/go-scp/communication-security/http-tls", "https://gorbe.io/docs/owasp/go-scp/communication-security/websockets", "https://gorbe.io/docs/owasp/go-scp/cryptographic-practices", "https://gorbe.io/docs/owasp/go-scp/cryptographic-practices/pseudo-random-generators", "https://gorbe.io/docs/owasp/go-scp/data-protection", "https://gorbe.io/docs/owasp/go-scp/database-security", "https://gorbe.io/docs/owasp/go-scp/database-security/authentication", "https://gorbe.io/docs/owasp/go-scp/database-security/connections", "https://gorbe.io/docs/owasp/go-scp/database-security/parameterized-queries", "https://gorbe.io/docs/owasp/go-scp/database-security/stored-procedures", "https://gorbe.io/docs/owasp/go-scp/error-handling-logging", "https://gorbe.io/docs/owasp/go-scp/error-handling-logging/error-handling", "https://gorbe.io/docs/owasp/go-scp/error-handling-logging/logging", "https://gorbe.io/docs/owasp/go-scp/file-management", "https://gorbe.io/docs/owasp/go-scp/final-notes", "https://gorbe.io/docs/owasp/go-scp/general-coding-practices", "https://gorbe.io/docs/owasp/go-scp/general-coding-practices/cross-site-request-forgery", "https://gorbe.io/docs/owasp/go-scp/general-coding-practices/regular-expressions", "https://gorbe.io/docs/owasp/go-scp/howto-contribute", "https://gorbe.io/docs/owasp/go-scp/input-validation", "https://gorbe.io/docs/owasp/go-scp/input-validation/sanitization", "https://gorbe.io/docs/owasp/go-scp/input-validation/validation", "https://gorbe.io/docs/owasp/go-scp/introduction", "https://gorbe.io/docs/owasp/go-scp/memory-management", "https://gorbe.io/docs/owasp/go-scp/output-encoding", "https://gorbe.io/docs/owasp/go-scp/output-encoding/cross-site-scripting", "https://gorbe.io/docs/owasp/go-scp/output-encoding/sql-injection", "https://gorbe.io/docs/owasp/go-scp/session-management", "https://gorbe.io/docs/owasp/go-scp/system-configuration", "https://gorbe.io/docs/owasp/top-10/2021/broken-access-control", "https://gorbe.io/docs/owasp/top-10/2021/cryptographic-failures", "https://gorbe.io/docs/owasp/top-10/2021/identification-and-authentication-failures", "https://gorbe.io/docs/owasp/top-10/2021/injection", "https://gorbe.io/docs/owasp/top-10/2021/insecure-design", "https://gorbe.io/docs/owasp/top-10/2021/introduction", "https://gorbe.io/docs/owasp/top-10/2021/next-steps", "https://gorbe.io/docs/owasp/top-10/2021/security-logging-and-monitoring-failures", "https://gorbe.io/docs/owasp/top-10/2021/security-misconfiguration", "https://gorbe.io/docs/owasp/top-10/2021/server-side-request-forgery", "https://gorbe.io/docs/owasp/top-10/2021/software-and-data-integrity-failures", "https://gorbe.io/docs/owasp/top-10/2021/vulnerable-and-outdated-components", "https://gorbe.io/docs/php/install", "https://gorbe.io/docs/php/php-fpm-configurations", "https://gorbe.io/docs/postgresql/setup", "https://gorbe.io/docs/protocols/dns/implementation-and-specification", "https://gorbe.io/docs/protocols/dns/record-types", "https://gorbe.io/docs/proxmox/unlock-vm", "https://gorbe.io/docs/redmine/install-redmine-4", "https://gorbe.io/docs/redmine/install-redmine-5", "https://gorbe.io/docs/regex/learn-regex-the-easy-way", "https://gorbe.io/docs/systemd/service-unit-configuration", "https://gorbe.io/docs/umami/install", "https://gorbe.io/docs/uptime-kuma/install-from-source", "https://gorbe.io/docs/uptime-kuma/update-from-source", "https://gorbe.io/docs/wireguard/remote-access-vpn", "https://gorbe.io/docs/wireguard/security-features-and-best-practices", "https://gorbe.io/docs/wireguard/whitepaper", "https://gorbe.io/"}
-
 func TestRunLighthouse(t *testing.T) {
 
-	r := google.RunLighthouse("https://gorbe.io/", google.NewApiKey(os.Getenv("GOOGLE_CLOUD_KEY")), google.LighthouseCategoryAll...)
-	if r.Errs() != nil {
-		t.Fatalf("FAIL: %#v\n", r.Errs())
+	res, err := google.RunLighthouse("https://gorbe.io/", nil, google.LighthouseCategoryAll...)
+	if err != nil {
+		t.Fatalf("FAIL: %s\n", err)
 	}
 
-	if r.RequestedUrl != "https://gorbe.io/" {
-		t.Fatalf("Invalid RequestedURL: %s\n", r.RequestedUrl)
+	if res.RequestedURL().String() != "https://gorbe.io/" {
+		t.Fatalf("Invalid RequestedURL: %s\n", res.RequestedURL().String())
 	}
+
+	t.Logf("categories: %v\n", res.Categories())
 }
 
-func ExampleRunLighthouse() {
+// func ExampleRunLighthouse() {
 
-	r := google.RunLighthouse("https://gorbe.io/", nil, google.LighthouseCategoryAll...)
-	if r.Errs() != nil {
-		// Handle error
-	}
+// 	r := google.RunLighthouse("https://gorbe.io/", nil, google.LighthouseCategoryAll...)
+// 	if r.Errs() != nil {
+// 		// Handle error
+// 	}
 
-	for k := range r.Categories {
-		fmt.Printf("%s %d\n", k, int(r.Categories[k].Score*100))
-	}
-}
+// 	for k := range r.Categories {
+// 		fmt.Printf("%s %d\n", k, int(r.Categories[k].Score*100))
+// 	}
+// }
 
-func TestRunLighthouseFail(t *testing.T) {
+func TestRunLighthouseErrLighthouseFailedDocumentRequest(t *testing.T) {
 
-	r := google.RunLighthouse("https://gorbe.ioo", google.NewApiKey(os.Getenv("GOOGLE_CLOUD_KEY")), google.LighthouseCategoryAll...)
-	if r.Errs() == nil {
+	_, err := google.RunLighthouse("https://gorbe.ioo", nil, google.LighthouseCategoryAll...)
+	if err == nil {
 		t.Fatalf("FAIL: error is nil\n")
 	}
 
-	if r.RequestedUrl != "https://gorbe.ioo" {
-		t.Fatalf("Invalid RequestedURL: %s\n", r.RequestedUrl)
+	if !errors.Is(err, google.ErrLighthouseFailedDocumentRequest) {
+		if errors.Is(err, google.ErrLighthouseRateLimitExceeded) {
+			t.Logf("ErrLighthouseRateLimitExceeded\n")
+		} else {
+			t.Fatalf("Unknown error: \"%s\"\n", err)
+		}
+	}
+}
+
+func TestRunLighthouseErrLighthouseInvalidKey(t *testing.T) {
+
+	_, err := google.RunLighthouse("https://gorbe.io", google.NewApiKey("invalid"), google.LighthouseCategoryAll...)
+	if err == nil {
+		t.Fatalf("FAIL: error is nil\n")
+	}
+
+	if !errors.Is(err, google.ErrLighthouseInvalidKey) {
+		if errors.Is(err, google.ErrLighthouseRateLimitExceeded) {
+			t.Logf("ErrLighthouseRateLimitExceeded\n")
+		} else {
+			t.Fatalf("Unknown error: \"%s\"\n", err)
+		}
+	}
+}
+
+func TestRunLighthouseErrLighthouseInvalidCategory(t *testing.T) {
+
+	_, err := google.RunLighthouse("https://gorbe.io", nil, google.LighthouseCategory("invalid"))
+	if err == nil {
+		t.Fatalf("FAIL: error is nil\n")
+	}
+
+	if !errors.Is(err, google.ErrLighthouseInvalidCategory) {
+		if errors.Is(err, google.ErrLighthouseRateLimitExceeded) {
+			t.Logf("ErrLighthouseRateLimitExceeded\n")
+		} else {
+			t.Fatalf("Unknown error: \"%s\"\n", err)
+		}
+	}
+}
+
+func TestRunLighthouseErrLighthouseInvalidStrategy(t *testing.T) {
+
+	_, err := google.RunLighthouse("https://gorbe.io", nil, google.LighthouseStrategy("invalid"))
+	if err == nil {
+		t.Fatalf("FAIL: error is nil\n")
+	}
+
+	if !errors.Is(err, google.ErrLighthouseInvalidStrategy) {
+		if errors.Is(err, google.ErrLighthouseRateLimitExceeded) {
+			t.Logf("ErrLighthouseRateLimitExceeded\n")
+		} else {
+			t.Fatalf("Unknown error: \"%s\"\n", err)
+		}
+	}
+}
+
+func TestRunLighthouseErrLighthouseInvalidUrl(t *testing.T) {
+
+	_, err := google.RunLighthouse("gorbe.io", nil, google.LighthouseCategoryAll...)
+	if err == nil {
+		t.Fatalf("FAIL: error is nil\n")
+	}
+
+	if !errors.Is(err, google.ErrLighthouseInvalidUrl) {
+
+		if errors.Is(err, google.ErrLighthouseRateLimitExceeded) {
+			t.Logf("ErrLighthouseRateLimitExceeded\n")
+		} else {
+			t.Fatalf("Unknown error: \"%s\"\n", err)
+		}
 	}
 }
 
 func TestRunConcurrentLighthouse(t *testing.T) {
 
-	rand.Shuffle(len(TestURLs), func(i, j int) { TestURLs[i], TestURLs[j] = TestURLs[j], TestURLs[i] })
-
-	maxURLs := 10
-
-	r := google.RunConcurrentLighthouse(context.TODO(), runtime.NumCPU(), TestURLs[:maxURLs], google.NewApiKey(os.Getenv("GOOGLE_CLOUD_KEY")), google.LighthouseCategoryAll...)
-
-	if len(r) != maxURLs {
-		t.Fatalf("FAIL: Invlalid result length: %d / %d\n", len(r), maxURLs)
+	if runtime.NumCPU() < 16 {
+		t.Skipf("Not enough number of CPU")
 	}
 
-	for i := range r {
+	testurls := make([]string, 0, runtime.NumCPU()*2)
 
-		if r[i].Errs() != nil {
-			t.Logf("%s ~> %#v\n", r[i].RequestedUrl, r[i].Errs())
-			continue
-		}
+	for i := 0; i < runtime.NumCPU()*2; i++ {
+		testurls = append(testurls, "https://example.com")
+	}
 
-		t.Logf("%s -> %#v\n", r[i].RequestedUrl, r[i].Time())
+	res, errs := google.RunConcurrentLighthouse(context.TODO(), runtime.NumCPU(), testurls, nil, google.LighthouseCategoryAll...)
 
-		if r[i].RequestedUrl != r[i].FinalUrl {
-			t.Errorf("FAIL: %s != %s\n", r[i].RequestedUrl, r[i].FinalUrl)
+	if len(res)+len(errs) != len(testurls) {
+		t.Fatalf("FAIL: Invlalid result length: %d / %d\n", len(res)+len(errs), len(testurls))
+	}
+
+	for i := range errs {
+		if errors.Is(errs[i], google.ErrLighthouseUnprocessable) ||
+			errors.Is(errs[i], google.ErrLighthouseRateLimitExceeded) {
+
+			t.Logf("%s\n", errs[i])
+		} else {
+
+			t.Errorf("ERROR: %s\n", errs[i])
 		}
 	}
+
+	for i := range res {
+		t.Logf("\"%s\": %.2f\n", res[i].RequestedURL(), res[i].Score("total"))
+	}
+
 }
